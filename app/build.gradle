@@ -1,248 +1,138 @@
-import com.android.builder.internal.BaseConfigImpl
-
 apply plugin: 'com.android.application'
-
 apply plugin: 'kotlin-android'
-
 apply plugin: 'kotlin-android-extensions'
-
 // region Dagger dependency required plugin
 apply plugin: 'kotlin-kapt'
-// endregion Dagger dependency required plugin
 
-apply from: '../quality.gradle'
-//apply from: '../quality/jacoco.gradle'
 // build constants and api keys
 apply from: 'constants.gradle'
 
 android {
-    compileSdkVersion androidConfig.compileSdkVersion
-    buildToolsVersion androidConfig.buildToolsVersion
-    compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+  compileSdkVersion androidConfig.compileSdkVersion
+  buildToolsVersion androidConfig.buildToolsVersion
+
+  compileOptions {
+    sourceCompatibility JavaVersion.VERSION_1_8
+    targetCompatibility JavaVersion.VERSION_1_8
+  }
+
+  defaultPublishConfig "mobileDebug"
+
+  defaultConfig {
+    applicationId "android.com.viper"
+    minSdkVersion androidConfig.minSdkVersion
+    targetSdkVersion androidConfig.targetSdkVersion
+    versionCode androidConfig.versionCode
+    versionName androidConfig.versionName
+    testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+    multiDexEnabled true
+    dexOptions {
+      javaMaxHeapSize "12g"
     }
+    vectorDrawables.useSupportLibrary = true
 
-    packagingOptions {
-        exclude 'META-INF/rxjava.properties'
-        // bouncy castle issue
-        exclude 'META-INF/versions/9/module-info.class'
+    // enable incremental kapt for dagger
+    javaCompileOptions {
+      annotationProcessorOptions {
+        arguments << [
+            "dagger.gradle.incremental": "true",
+            "room.incremental": "true"
+        ]
+      }
     }
+  }
 
-    defaultPublishConfig "mobileDebug"
-
-    defaultConfig {
-        applicationId "com.android.viper"
-        minSdkVersion androidConfig.minSdkVersion
-        targetSdkVersion androidConfig.targetSdkVersion
-        versionCode androidConfig.versionCode
-        versionName androidConfig.versionName
-        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
-        multiDexEnabled true
-        dexOptions {
-            javaMaxHeapSize "12g"
-        }
-        vectorDrawables.useSupportLibrary = true
-
-        // enable incremental kapt for dagger
-        javaCompileOptions {
-            annotationProcessorOptions {
-                arguments << [
-                    "dagger.gradle.incremental": "true",
-                    "room.incremental":"true"
-                ]
-            }
-        }
+  buildTypes {
+    release {
+      minifyEnabled false
+      shrinkResources false
+      proguardFiles getDefaultProguardFile('proguard-android.txt')
     }
-
-
-    signingConfigs {
-//        release {
-//            if (keystoreProperties["RELEASE_STORE_FILE"] != null) {
-//                storeFile file(keystoreProperties['RELEASE_STORE_FILE'])
-//                storePassword keystoreProperties['RELEASE_STORE_PASSWORD']
-//                keyAlias keystoreProperties['RELEASE_KEY_ALIAS']
-//                keyPassword keystoreProperties['RELEASE_KEY_PASSWORD']
-//            } else {
-//                project.logger.error("Release signing config not found, release build will fail! Please check signing.properties file")
-//            }
-//        }
-        debug {
-            storeFile file("debug_key.jks")
-            storePassword "android"
-            keyAlias "key0"
-            keyPassword "android"
-        }
-//        uploadPlayStore {
-//            if (keystoreProperties["RELEASE_UPLOAD_STORE_FILE"] != null) {
-//                storeFile file(keystoreProperties['RELEASE_UPLOAD_STORE_FILE'])
-//                storePassword keystoreProperties['RELEASE_UPLOAD_STORE_PASSWORD']
-//                keyAlias keystoreProperties['RELEASE_UPLOAD_KEY_ALIAS']
-//                keyPassword keystoreProperties['RELEASE_UPLOAD_KEY_PASSWORD']
-//            } else {
-//                project.logger.error(
-//                    "Upload play store signing config not found, uploadPlayStore build will fail! Please check signing.properties file")
-//            }
-//        }
+    debug {
+      debuggable true
+      minifyEnabled false
+      shrinkResources false
+      proguardFiles getDefaultProguardFile('proguard-android.txt')
     }
-    buildTypes {
-//        release {
-//            signingConfig signingConfigs.release
-//            minifyEnabled true
-//            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-//        }
-//        releaseUploadPlayStore.initWith(buildTypes.release)
-//        releaseUploadPlayStore {
-//            signingConfig signingConfigs.uploadPlayStore
-//        }
-        debug {
-            signingConfig signingConfigs.debug
-            minifyEnabled false
-            versionNameSuffix "_" + getBuildDate()
-            ext.enableCrashlytics = false
-        }
-        memoryDebug {
-            signingConfig signingConfigs.debug
-            minifyEnabled false
-            versionNameSuffix "_" + getBuildDate()
-        }
-        fastbug { // Build date on debug builds massively slows down build times for devs
-            debuggable true
-            signingConfig signingConfigs.debug
-            minifyEnabled false
-            ext.enableCrashlytics = false
-        }
+  }
+
+  final DIMENSION_ENV = "environment"
+
+  flavorDimensions DIMENSION_ENV
+
+  productFlavors {
+    mobile {
+      dimension DIMENSION_ENV
+      applicationIdSuffix ".mobile"
+      versionNameSuffix "-mobile"
     }
-
-    final DIMENSION_ENV = "environment"
-    final keyFileProviderAuthority = "FILE_PROVIDER_AUTHORITY"
-    flavorDimensions DIMENSION_ENV
-
-    productFlavors {
-        mobile {
-            dimension DIMENSION_ENV
-            applicationIdSuffix ".mobile"
-            versionNameSuffix "-mobile"
-            addConstant(keyFileProviderAuthority, "${defaultConfig.applicationId}${applicationIdSuffix}.fileprovider",
-                it)
-            buildConfigField "boolean", "IS_PRODUCTION", "false"
-        }
-        production {
-            dimension DIMENSION_ENV
-            addConstant(keyFileProviderAuthority, "${defaultConfig.applicationId}${applicationIdSuffix}.fileprovider",
-                it)
-            buildConfigField "boolean", "IS_PRODUCTION", "true"
-        }
+    production {
+      dimension DIMENSION_ENV
     }
+  }
 
-    variantFilter { variant ->
-        def names = variant.flavors*.name
-        // we don't upload mobile to playstore
-        if (names.contains("mobile") && variant.buildType.name .contains("PlayStore")) {
-            setIgnore(true)
-        }
-    }
+  packagingOptions {
+    exclude 'META-INF/rxjava.properties'
+  }
 
-    lintOptions {
-        enable 'ConvertToWebp'
-        lintConfig file("lint.xml")
-    }
+  lintOptions {
+    enable 'ConvertToWebp'
+    lintConfig file("lint.xml")
+  }
 
-    testOptions {
-        unitTests {
-            includeAndroidResources = true
-            returnDefaultValues = true
-            all {
-                exclude '**/YCSCardDataEncryptionProviderTest*'
-                // This will allow us see tests execution progress in the output on the CI.
-                testLogging {
-                    events 'passed', 'skipped', 'failed', 'standardOut', 'standardError'
-                    exceptionFormat 'full'
-                }
-            }
-        }
-    }
+  kapt {
+    generateStubs = true
+  }
 
-    android.applicationVariants.all { variant ->
-        variant.outputs.all {
-            if (isCurrentFlavorMobileRelease()) {
-                outputFileName = "${project.name}_${"mobile"}_${variant.buildType.name}_${getBuildDate()}.apk"
-                versionNameOverride = mergedFlavor.versionName + "-mobile_" + getBuildDate()
-                mergedFlavor.versionNameSuffix =  "-mobile_" + getBuildDate()
-            }
-        }
-    }
-
-    // Language can change at run time in the future, easiest solution to not need to
-    // write a lot more code to handle downloading/waiting for new languages
-    bundle {
-        language {
-            enableSplit = false
-        }
-        density {
-            enableSplit = true
-        }
-        abi {
-            enableSplit = true
-        }
-    }
-
+  sourceSets {
+    androidTest.setRoot( 'src/test/java' )
+    main.java.srcDirs += 'src/main/kotlin'
+  }
 }
-
-kapt {
-    useBuildCache = true
-}
-
-static def addConstant(constantName, constantValue, BaseConfigImpl configImpl) {
-    configImpl.manifestPlaceholders += [(constantName): constantValue]
-    configImpl.buildConfigField "String", "${constantName}", "\"${constantValue}\""
-}
-
-static def getBuildDate() {
-    return new Date().format('ddMMM_HH:mm')
-}
-
-def isCurrentFlavorMobileRelease() {
-    String tskReqStr = gradle.getStartParameter().getTaskRequests().toString()
-    return tskReqStr.contains("assembleMobileRelease")
-}
-
-
 
 dependencies {
-    kapt "com.google.dagger:dagger-compiler:${versions.dagger}"
 
-    implementation fileTree(include: ['*.jar'], dir: 'libs')
-    implementation "androidx.appcompat:appcompat:${versions.appcompat}"
-    implementation "androidx.core:core-ktx:${versions.androidKtx}"
-    implementation "androidx.cardview:cardview:${versions.androidX}"
-    implementation "androidx.emoji:emoji:${versions.androidX}"
-    implementation "androidx.emoji:emoji-bundled:${versions.androidX}"
-    implementation "com.google.android.material:material:${versions.androidX}"
-    implementation "com.google.android.play:core:${versions.googlePlayCore}"
+  implementation fileTree(dir: 'libs', include: ['*.jar'])
+  implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+  implementation "androidx.appcompat:appcompat:${versions.appcompat}"
+  implementation "androidx.core:core-ktx:${versions.androidKtx}"
+  implementation "com.google.android.material:material:${versions.appcompat}"
+  implementation "com.android.support.constraint:constraint-layout:${versions.constraintLayout}"
 
-    implementation "com.squareup.okhttp3:okhttp:${versions.okhttp}"
-    implementation "com.squareup.okhttp3:logging-interceptor:${versions.okhttp}"
-    implementation "com.squareup.retrofit2:retrofit:${versions.retrofit}"
-    implementation "com.squareup.retrofit2:adapter-rxjava:${versions.retrofit}"
-    implementation "com.squareup.retrofit2:converter-gson:${versions.retrofit}"
-    implementation "com.dzaitsev.rxviper:rxviper:${versions.rxViper}"
-    implementation "io.reactivex:rxjava:${versions.rxJava}"
-    implementation "io.reactivex:rxandroid:${versions.rxAndroid}"
-    implementation "io.reactivex.rxjava2:rxandroid:${versions.rxAndroid2}"
-    implementation "com.tbruyelle.rxpermissions:rxpermissions:${versions.rxPermissions}"
-    implementation "com.google.dagger:dagger:${versions.dagger}"
-    implementation "com.google.android.gms:play-services-maps:${versions.googlePlayServiceMaps}"
-    implementation "com.google.android.gms:play-services-location:${versions.googlePlayServiceLocation}"
-    implementation "androidx.constraintlayout:constraintlayout:${versions.constraintLayout}"
+  implementation "com.dzaitsev.rxviper:rxviper:${versions.rxViper}"
+  compileOnly "javax.annotation:javax.annotation-api:${versions.javaxAnnotationApi}"
+  implementation "com.google.dagger:dagger:${versions.dagger}"
+  kapt "com.google.dagger:dagger-compiler:${versions.dagger}"
 
-    // Test dependencies
-    testImplementation "com.squareup.leakcanary:leakcanary-android-no-op:${versions.leakCanary}"
-    testImplementation "junit:junit:${versions.junit}"
-    testImplementation "com.nhaarman.mockitokotlin2:mockito-kotlin:${versions.mockitoKotlin}"
-    testImplementation "org.robolectric:robolectric:${versions.robolectric}"
+  implementation "com.squareup.okhttp3:okhttp:${versions.okhttp}"
+  implementation "com.squareup.okhttp3:logging-interceptor:${versions.okhttp}"
+
+  implementation "com.squareup.retrofit2:retrofit:${versions.retrofit}"
+  implementation "com.squareup.retrofit2:adapter-rxjava:${versions.retrofit}"
+  implementation "com.squareup.retrofit2:converter-gson:${versions.retrofit}"
+
+  implementation "io.reactivex:rxjava:${versions.rxjava}"
+  implementation "io.reactivex:rxandroid:${versions.rxAndroid}"
+  implementation "io.reactivex.rxjava2:rxandroid:${versions.rxAndroid2}"
+
+  implementation "androidx.constraintlayout:constraintlayout:${versions.constraintLayout}"
+  implementation "com.tbruyelle.rxpermissions:rxpermissions:${versions.rxPermissions}"
+
+  implementation "com.facebook.stetho:stetho:${versions.stetho}"
+  implementation "com.facebook.stetho:stetho-okhttp3:${versions.stetho}"
+
+  implementation "com.github.bumptech.glide:glide:${versions.glide}"
+
+  kapt "androidx.room:room-compiler:${versions.room}"
+  implementation "androidx.room:room-runtime:${versions.room}"
+  implementation "androidx.room:room-rxjava2:${versions.room}"
+
+  implementation "androidx.paging:paging-runtime-ktx:${versions.paging_ktx}"
+  implementation "androidx.paging:paging-rxjava2-ktx:${versions.paging_ktx}"
+
+  // Test dependencies
+  testImplementation "junit:junit:${versions.junit}"
+  testImplementation 'org.mockito:mockito-core:2.23.0'
+  testImplementation "com.nhaarman.mockitokotlin2:mockito-kotlin:${versions.mockitoKotlin}"
+  testImplementation "org.robolectric:robolectric:${versions.robolectric}"
 }
-
-// we need to resolve google dependencies as mentioned by docs, we don't use json configs
-// see https://developers.google.com/android/guides/google-services-plugin
-apply plugin: 'com.google.android.gms.strict-version-matcher-plugin'

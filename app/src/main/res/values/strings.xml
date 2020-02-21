@@ -1,3 +1,9 @@
 <resources>
-  <string name="app_name">Android-Viper</string>
+  <string name="app_name">CatImages</string>
+  <string name="something_wrong">Something wrong happened</string>
+  <string name="error_message_not_found">Bad Request - Your request is missing parameters. Please verify and resubmit.</string>
+  <string name="no_internet_message_main_screen">We can\'t seem to reach you. Check your connection
+    to access your account.
+  </string>
+  <string name="error_not_2xx_or_3xx">Something went wrong, please try again later</string>
 </resources>

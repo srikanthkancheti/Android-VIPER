@@ -5,97 +5,29 @@ final bool = "boolean"
 final string = "String"
 final True = "true"
 final False = "false"
+final END_POINT = "https://api.thecatapi.com/v1/"
 
 final IS_PRODUCTION = "IS_PRODUCTION"
-
-final fcmSenderIdVar = "FCM_SENDER_ID"
-final googleApiKeyVar = "FIREBASE_API_KEY"
-final firebaseProjectIdVar = "FIREBASE_PROJECT_ID"
-
-
-final googleSdkApiKeys = [
-    production           : "",
-    // development key registered on Srikanth Kancheti account
-    develop              : ""
-]
-
-final branchIoApiKeys = [
-    production           : "",
-    test                 : ""
-]
-
-final fabricApiKey = "" //fabric key is the same for dev and prod
-
-final facebookApiKeys = [
-    appIdDev       : "",
-    schemeDev       : "",
-
-    appIdProd       : "",
-    schemeProd       : "",
-]
-
-
-final firebaseApiKeysMobile = [
-    fcmSenderId   : "",
-    googleApiKey  : "",
-    projectId     : "",
-]
-
-final firebaseApiKeysProduction = [
-    fcmSenderId   : "",
-    googleApiKey  : "",
-    projectId     : "",
-]
-
-
-// api keys itself
+final SSL_DISABLED = "SSL_DISABLED"
 
 android {
 
   defaultConfig {
     // common config for all build variants
     buildConfigField bool, IS_PRODUCTION, False
-    buildConfigField bool, "ENABLE_FPX", True
     buildConfigField string, "PLATFORM", "\"Android\""
-
-    manifestPlaceholders += [
-        MAPS_API_KEY : googleSdkApiKeys.develop,
-        NEARBY_API_KEY : googleSdkApiKeys.develop,
-        BRANCH_LIVE_KEY : branchIoApiKeys.production,
-        BRANCH_TEST_KEY : branchIoApiKeys.test,
-        FABRIC_API_KEY : fabricApiKey,
-        FACEBOOK_APP_ID : facebookApiKeys.appIdDev,
-        FACEBOOK_SCHEME : facebookApiKeys.schemeDev,
-    ]
+    buildConfigField string, "ENDPOINT", "\"$END_POINT\""
   }
 
   productFlavors {
 
     mobile {
-      // Firebase config
-      buildConfigField string, fcmSenderIdVar, "\"$firebaseApiKeysMobile.fcmSenderId\""
-      buildConfigField string, googleApiKeyVar, "\"$firebaseApiKeysMobile.googleApiKey\""
-      buildConfigField string, firebaseProjectIdVar, "\"$firebaseApiKeysMobile.projectId\""
-      buildConfigField bool, "MALAYSIA_ONLY", False
+      buildConfigField bool, SSL_DISABLED, True
     }
 
     production {
       buildConfigField bool, IS_PRODUCTION, True
-
-      buildConfigField bool, "MALAYSIA_ONLY", True
-
-      // Firebase config
-      buildConfigField string, fcmSenderIdVar, "\"$firebaseApiKeysProduction.fcmSenderId\""
-      buildConfigField string, googleApiKeyVar, "\"$firebaseApiKeysProduction.googleApiKey\""
-      buildConfigField string, firebaseProjectIdVar, "\"$firebaseApiKeysProduction.projectId\""
-
-      manifestPlaceholders += [
-          MAPS_API_KEY : googleSdkApiKeys.production,
-          NEARBY_API_KEY : googleSdkApiKeys.production,
-          FACEBOOK_APP_ID : facebookApiKeys.appIdProd,
-          FACEBOOK_SCHEME : facebookApiKeys.schemeProd
-      ]
+      buildConfigField bool, SSL_DISABLED, False
     }
   }
-
 }
