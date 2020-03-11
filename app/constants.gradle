@@ -5,7 +5,7 @@ final bool = "boolean"
 final string = "String"
 final True = "true"
 final False = "false"
-final END_POINT = "https://enter your api address/"
+final END_POINT = "https://api.thecatapi.com/v1/"
 
 final IS_PRODUCTION = "IS_PRODUCTION"
 final SSL_DISABLED = "SSL_DISABLED"
