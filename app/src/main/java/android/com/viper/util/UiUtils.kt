@@ -1,9 +1,11 @@
 package android.com.viper.util
 
 import android.com.viper.R
+import android.content.Context
 import android.graphics.Color
 import android.graphics.Rect
 import android.view.View
+import android.view.inputmethod.InputMethodManager
 import android.widget.TextView
 import com.google.android.material.snackbar.Snackbar
 
@@ -27,22 +29,22 @@ object UiUtils {
     } ?: return null
   }
 
-  //Method to calculate how much of the view is visible
-  fun getVisibleHeightPercentage(view: View): Double {
-
-    val itemRect = Rect()
-    val isParentViewEmpty = view.getLocalVisibleRect(itemRect)
-
-    // Find the height of the item.
-    val visibleHeight = itemRect.height().toDouble()
-    val height = view.measuredHeight
-
-    val viewVisibleHeightPercentage = visibleHeight / height * 100
-
-    if(isParentViewEmpty){
-      return viewVisibleHeightPercentage
-    }else{
-      return 0.0
-    }
+  @JvmStatic
+  fun showSoftKeyboard(view: View): Boolean {
+    val inputMethodManager = view.context.getSystemService(
+      Context.INPUT_METHOD_SERVICE) as InputMethodManager
+    view.requestFocus()
+    return inputMethodManager.showSoftInput(view, InputMethodManager.SHOW_FORCED)
   }
+
+  @JvmStatic
+  fun hideSoftKeyboard(focus: View?): Boolean {
+    if (focus != null) {
+      val inputMethodManager = focus.context.getSystemService(
+        Context.INPUT_METHOD_SERVICE) as InputMethodManager
+      return inputMethodManager.hideSoftInputFromWindow(focus.windowToken, 0)
+    }
+    return false
+  }
+
 }

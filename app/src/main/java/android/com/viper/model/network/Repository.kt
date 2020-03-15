@@ -1,11 +1,13 @@
 package android.com.viper.model.network
 
-import android.com.viper.model.response.CatDetailModel
-import android.com.viper.model.response.CatImagesModel
-import androidx.paging.PagedList
+import android.com.viper.model.response.category.CategoriesResponse
+import android.com.viper.model.response.meals.MealDetailsResponse
+import android.com.viper.model.response.meals.MealsResponse
 import rx.Observable
 
 interface Repository {
-  fun getCatImagesData(pageSize: Int, page: Int): Observable<List<CatImagesModel>>
-  fun getCatDetailData(imageId: String?): Observable<CatDetailModel>
+  fun getMealsCategories(): Observable<CategoriesResponse>
+  fun getMealsSearchResults(requestQuery: String?): Observable<MealsResponse>
+  fun getMealDetailData(mealId: String?): Observable<MealDetailsResponse>
+  fun getMealsFilterResults(requestFilter: String?): Observable<MealsResponse>
 }

@@ -1,9 +1,18 @@
 <resources>
-  <string name="app_name">CatImages</string>
+  <string name="app_name">Meals DB</string>
   <string name="something_wrong">Something wrong happened</string>
   <string name="error_message_not_found">Bad Request - Your request is missing parameters. Please verify and resubmit.</string>
   <string name="no_internet_message_main_screen">We can\'t seem to reach you. Check your connection
     to access your account.
   </string>
   <string name="error_not_2xx_or_3xx">Something went wrong, please try again later</string>
+  <string name="hint_search_meal">Search meal</string>
+  <string name="results_for_text">Results for \"%s\"</string>
+  <string name="tags_text">Tags: %s</string>
+  <string name="category_text">Category: %s</string>
+  <string name="categories_header_text">Categories</string>
+  <string name="area_text">Area: %s</string>
+  <string name="meal_instructions_text">Instructions:</string>
+  <string name="meal_ingredients_text">Ingredients:</string>
+  <string name="meal_measures_text">Measures:</string>
 </resources>

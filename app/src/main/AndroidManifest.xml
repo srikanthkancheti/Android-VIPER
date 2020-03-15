@@ -6,14 +6,14 @@
   <uses-permission android:name="android.permission.INTERNET" />
 
     <application
-        android:name=".CatApplication"
+        android:name=".MealsApplication"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
 
-        <activity android:name=".ui.home.CatImagesActivity">
+        <activity android:name=".ui.home.MealsHomeActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -21,7 +21,7 @@
             </intent-filter>
         </activity>
         <activity android:name=".app.SecureActivity"/>
-        <activity android:name=".ui.catDetail.CatDetailActivity"/>
+        <activity android:name=".ui.mealDetail.MealDetailActivity" />
 
     </application>
 

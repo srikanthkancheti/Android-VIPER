@@ -1,6 +1,6 @@
 package android.com.viper.di.component
 
-import android.com.viper.CatApplication
+import android.com.viper.MealsApplication
 import android.com.viper.di.modules.AppModule
 import android.com.viper.di.modules.BaseActivityModule
 import android.com.viper.di.modules.NetworkModule
@@ -18,5 +18,5 @@ interface AppComponent {
 
   fun plus(activityModule: BaseActivityModule): BaseActivityComponent
 
-  fun inject(app: CatApplication)
+  fun inject(app: MealsApplication)
 }

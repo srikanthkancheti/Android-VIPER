@@ -1,31 +1,39 @@
 package android.com.viper.model.network
 
-import android.com.viper.model.response.CatDetailModel
-import android.com.viper.model.response.CatImagesModel
+import android.com.viper.model.response.category.CategoriesResponse
+import android.com.viper.model.response.meals.MealDetailsResponse
+import android.com.viper.model.response.meals.MealsResponse
 import retrofit2.http.GET
-import retrofit2.http.Path
 import retrofit2.http.Query
 import rx.Observable
 
-const val PATH_ARGUMENT = "path_arg"
+const val BASE_END_POINT = "/api/json/v1/1/"
+const val CATEGORIES = "categories.php"
+const val MEALS_SEARCH = "search.php"
+const val MEALS_FILTER = "filter.php"
+const val MEALS_DETAILS = "lookup.php"
 
-const val PATH_IMAGES_SEARCH = "images/search"
-const val PATH_IMAGES = "images/{$PATH_ARGUMENT}"
-const val QUERY_LIMIT = "limit"
-const val QUERY_PAGE = "page"
-const val QUERY_MIME_TYPE = "mime_types"
-const val QUERY_ORDER = "order"
+const val QUERY_STRING = "s"
+const val QUERY_LOOKUP = "i"
+const val QUERY_CATEGORY = "c"
 
 interface CatsApi {
 
-  @GET(PATH_IMAGES_SEARCH)
-  fun getCatImages(
-    @Query(QUERY_LIMIT) limit: Int,
-    @Query(QUERY_PAGE) page: Int,
-    @Query(QUERY_MIME_TYPE) mimeTypes: String,
-    @Query(QUERY_ORDER) order: String
-  ): Observable<List<CatImagesModel>>
+  @GET(BASE_END_POINT + CATEGORIES)
+  fun getCategories(): Observable<CategoriesResponse>
 
-  @GET(PATH_IMAGES)
-  fun getCatDetail(@Path(PATH_ARGUMENT) imageId: String?): Observable<CatDetailModel>
+  @GET(BASE_END_POINT + MEALS_SEARCH)
+  fun getMealSearchList(
+    @Query(QUERY_STRING) requestQuery: String?
+  ): Observable<MealsResponse>
+
+  @GET(BASE_END_POINT + MEALS_DETAILS)
+  fun getMealDetails(
+    @Query(QUERY_LOOKUP) mealId: String?
+  ): Observable<MealDetailsResponse>
+
+  @GET(BASE_END_POINT + MEALS_FILTER)
+  fun getFilterResults(
+    @Query(QUERY_CATEGORY) requestFilter: String?
+  ): Observable<MealsResponse>
 }

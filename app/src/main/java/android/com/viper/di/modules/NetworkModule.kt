@@ -1,3 +1,5 @@
+@file:Suppress("DEPRECATION")
+
 package android.com.viper.di.modules
 
 import android.app.Application
@@ -37,6 +39,7 @@ import java.util.concurrent.TimeUnit
 import javax.inject.Named
 import javax.inject.Singleton
 
+@Suppress("DEPRECATION")
 @Module(includes = [AppModule::class])
 open class NetworkModule {
 
@@ -90,11 +93,9 @@ open class NetworkModule {
     val appContext = context.applicationContext
     return object : NetworkAvailabilityMonitor {
       override fun isOnline(): Boolean {
-        var isConnected = false
         val connectivityManager = appContext.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
         val activeNetwork = connectivityManager.activeNetworkInfo
-        isConnected = activeNetwork != null && activeNetwork.isConnected
-        return isConnected
+        return activeNetwork != null && activeNetwork.isConnected
       }
     }
   }
@@ -128,7 +129,7 @@ open class NetworkModule {
 
   @Provides @Singleton fun provideRetrofit(okHttpClient: OkHttpClient, gson: Gson): Retrofit {
     return Retrofit.Builder()
-      .baseUrl(BuildConfig.ENDPOINT)
+      .baseUrl(BuildConfig.BASE_URL)
       .addConverterFactory(GsonConverterFactory.create(gson))
       .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
       .client(okHttpClient)
@@ -152,9 +153,9 @@ open class NetworkModule {
 
   @Provides fun provideHttpLoggingInterceptor(): HttpLoggingInterceptor {
     val interceptor = HttpLoggingInterceptor()
-    interceptor.setLevel(
-      if (BuildConfig.DEBUG) BODY else NONE
-    )
+    interceptor.apply {
+      interceptor.level = if (BuildConfig.DEBUG) BODY else NONE
+    }
     return interceptor
   }
 

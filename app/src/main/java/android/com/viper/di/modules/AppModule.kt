@@ -1,14 +1,10 @@
 package android.com.viper.di.modules
 
 import android.app.Application
-import android.com.viper.app.db.ViperSampleDB
 import android.com.viper.di.annotation.IoThread
 import android.com.viper.di.annotation.UiThread
 import android.content.Context
 import android.content.SharedPreferences
-import android.database.sqlite.SQLiteException
-import android.text.Editable.Factory
-import androidx.room.RoomDatabase.Builder
 import dagger.Module
 import dagger.Provides
 import rx.Scheduler
@@ -52,27 +48,27 @@ class AppModule(private val application: Application) {
     return application.getSharedPreferences("Preferences", Context.MODE_PRIVATE)
   }
 
-  @Provides @Singleton fun provideTransactionDatabase(
-    context: Context
-  ): ViperSampleDB {
-    val transactionsDbBuilder: Builder<ViperSampleDB> = ViperSampleDB.create(context)
-
-    val db: ViperSampleDB = transactionsDbBuilder
-      .fallbackToDestructiveMigration()
-      .build()
-    try { // Checking the database encryption key is valid and we can open database.
-      db.openHelper.readableDatabase
-    } catch (e: SQLiteException){
-      // SQLiteException - for encryption issues.
-      // If we catch the exception - delete database and recreate it.
-      ViperSampleDB.delete(context)
-      return provideTransactionDatabase(context)
-    } catch (e: IllegalStateException) {
-      // IllegalStateException - for database schema version issues.
-      // If we catch the exception - delete database and recreate it.
-      ViperSampleDB.delete(context)
-      return provideTransactionDatabase(context)
-    }
-    return db
-  }
+  // @Provides @Singleton fun provideTransactionDatabase(
+  //   context: Context
+  // ): ViperSampleDB {
+  //   val transactionsDbBuilder: Builder<ViperSampleDB> = ViperSampleDB.create(context)
+  //
+  //   val db: ViperSampleDB = transactionsDbBuilder
+  //     .fallbackToDestructiveMigration()
+  //     .build()
+  //   try { // Checking the database encryption key is valid and we can open database.
+  //     db.openHelper.readableDatabase
+  //   } catch (e: SQLiteException){
+  //     // SQLiteException - for encryption issues.
+  //     // If we catch the exception - delete database and recreate it.
+  //     ViperSampleDB.delete(context)
+  //     return provideTransactionDatabase(context)
+  //   } catch (e: IllegalStateException) {
+  //     // IllegalStateException - for database schema version issues.
+  //     // If we catch the exception - delete database and recreate it.
+  //     ViperSampleDB.delete(context)
+  //     return provideTransactionDatabase(context)
+  //   }
+  //   return db
+  // }
 }

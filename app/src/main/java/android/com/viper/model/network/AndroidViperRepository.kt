@@ -1,7 +1,8 @@
 package android.com.viper.model.network
 
-import android.com.viper.model.response.CatDetailModel
-import android.com.viper.model.response.CatImagesModel
+import android.com.viper.model.response.category.CategoriesResponse
+import android.com.viper.model.response.meals.MealDetailsResponse
+import android.com.viper.model.response.meals.MealsResponse
 import android.content.Context
 import retrofit2.Retrofit
 import rx.Observable
@@ -12,15 +13,21 @@ open class AndroidViperRepository(
   val context: Context
 ): Repository {
 
-  private val MIME_TYPES = "png"
-  private val ORDER = "Desc"
   private val restAPI: CatsApi = retrofit.create(apiClass)
 
-  override fun getCatImagesData(pageSize: Int, page: Int): Observable<List<CatImagesModel>> {
-    return restAPI.getCatImages(pageSize, page, MIME_TYPES, ORDER)
+  override fun getMealsCategories(): Observable<CategoriesResponse> {
+    return restAPI.getCategories()
   }
 
-  override fun getCatDetailData(imageId: String?): Observable<CatDetailModel> {
-    return restAPI.getCatDetail(imageId)
+  override fun getMealsSearchResults(requestQuery: String?): Observable<MealsResponse> {
+    return restAPI.getMealSearchList(requestQuery)
+  }
+
+  override fun getMealDetailData(mealId: String?): Observable<MealDetailsResponse> {
+    return restAPI.getMealDetails(mealId)
+  }
+
+  override fun getMealsFilterResults(requestFilter: String?): Observable<MealsResponse> {
+    return restAPI.getFilterResults(requestFilter)
   }
 }

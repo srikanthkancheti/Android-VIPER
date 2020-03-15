@@ -1,12 +1,9 @@
 package android.com.viper.util
 
-import android.com.viper.util.UiUtils.getVisibleHeightPercentage
-import android.graphics.Rect
+import android.app.Activity
+import android.util.DisplayMetrics
 import android.view.View
-import androidx.recyclerview.widget.GridLayoutManager
-import androidx.recyclerview.widget.RecyclerView
-import kotlinx.android.synthetic.main.activity_cat_images.view.*
-import kotlinx.android.synthetic.main.list_item_grid.view.*
+import android.widget.ImageView
 
 fun View.isVisible() = visibility == View.VISIBLE
 
@@ -18,23 +15,11 @@ fun View.findRootView(): View {
   return rootView ?: this
 }
 
-fun RecyclerView.addShowCatOverlay() = addOnScrollListener(object : RecyclerView.OnScrollListener() {
-  override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
-    val layoutManager = layoutManager as GridLayoutManager
-    val firstPosition = layoutManager.findFirstVisibleItemPosition()
-    val lastPosition = layoutManager.findLastVisibleItemPosition()
-
-    val globalVisibleRect = Rect()
-    recyclerViewCats.getGlobalVisibleRect(globalVisibleRect)
-    for (pos in firstPosition..lastPosition) {
-      val view = layoutManager.findViewByPosition(pos)
-      if (view != null) {
-        val percentage = getVisibleHeightPercentage(view)
-        if (percentage > 80.0) {
-          view.imageViewCatPaw.setVisible(true)
-        } else
-          view.imageViewCatPaw.setVisible(false)
-      }
-    }
-  }
-})
+fun View.fitGridItemViewToScreen(numberOfColumns: Int) {
+  val context = this.context
+  // Setting item view to fit for different screen sizes
+  val displayMetrics = DisplayMetrics()
+  (context as Activity).windowManager.defaultDisplay.getMetrics(displayMetrics)
+  val width = displayMetrics.widthPixels
+  this.layoutParams.height = width / numberOfColumns
+}
